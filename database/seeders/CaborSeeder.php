@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Cabor;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CaborSeeder extends Seeder
 {
@@ -61,7 +62,10 @@ class CaborSeeder extends Seeder
         foreach ($cabors as $cabor) {
             Cabor::updateOrCreate(
                 ['name' => $cabor['name']],
-                array_merge($cabor, ['is_active' => true])
+                array_merge($cabor, [
+                    'slug' => Str::slug($cabor['name']),
+                    'is_active' => true,
+                ])
             );
         }
     }
