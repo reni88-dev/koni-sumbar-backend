@@ -16,12 +16,14 @@ return new class extends Migration
             $table->foreignId('event_id')->constrained()->cascadeOnDelete();
             $table->foreignId('athlete_id')->constrained()->cascadeOnDelete();
             $table->foreignId('cabor_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('competition_class_id')->nullable()->constrained('competition_classes')->nullOnDelete();
             $table->enum('status', ['registered', 'verified', 'rejected'])->default('registered');
             $table->text('notes')->nullable();
             $table->timestamps();
             
-            // UNIQUE: One athlete can only participate in ONE cabor per event
-            $table->unique(['event_id', 'athlete_id'], 'event_athlete_unique');
+            // UNIQUE: One athlete can register for multiple competition classes per event
+            // But not the same combination of event + athlete + competition_class
+            $table->unique(['event_id', 'athlete_id', 'competition_class_id'], 'event_athlete_class_unique');
         });
     }
 

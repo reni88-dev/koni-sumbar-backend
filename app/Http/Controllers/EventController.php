@@ -249,29 +249,33 @@ class EventController extends Controller
     }
 
     /**
-     * Remove an athlete from this event.
+     * Remove an athlete registration from this event.
+     * Uses eventAthleteId (the ID of the event_athlete pivot record)
      */
-    public function removeAthlete(Event $event, $athleteId)
+    public function removeAthlete(Event $event, $eventAthleteId)
     {
-        $deleted = EventAthlete::where('event_id', $event->id)
-            ->where('athlete_id', $athleteId)
-            ->delete();
+        $eventAthlete = EventAthlete::where('event_id', $event->id)
+            ->where('id', $eventAthleteId)
+            ->first();
 
-        if (!$deleted) {
+        if (!$eventAthlete) {
             return response()->json([
-                'message' => 'Atlet tidak ditemukan di event ini',
+                'message' => 'Registrasi atlet tidak ditemukan di event ini',
             ], 404);
         }
 
+        $eventAthlete->delete();
+
         return response()->json([
-            'message' => 'Atlet berhasil dihapus dari event',
+            'message' => 'Registrasi atlet berhasil dihapus dari event',
         ]);
     }
 
     /**
      * Update athlete status in event.
+     * Uses eventAthleteId (the ID of the event_athlete pivot record)
      */
-    public function updateAthleteStatus(Request $request, Event $event, $athleteId)
+    public function updateAthleteStatus(Request $request, Event $event, $eventAthleteId)
     {
         $validated = $request->validate([
             'status' => 'required|in:registered,verified,rejected',
@@ -279,12 +283,12 @@ class EventController extends Controller
         ]);
 
         $eventAthlete = EventAthlete::where('event_id', $event->id)
-            ->where('athlete_id', $athleteId)
+            ->where('id', $eventAthleteId)
             ->first();
 
         if (!$eventAthlete) {
             return response()->json([
-                'message' => 'Atlet tidak ditemukan di event ini',
+                'message' => 'Registrasi atlet tidak ditemukan di event ini',
             ], 404);
         }
 
@@ -292,7 +296,7 @@ class EventController extends Controller
 
         return response()->json([
             'message' => 'Status atlet berhasil diupdate',
-            'event_athlete' => $eventAthlete->load(['athlete', 'cabor']),
+            'event_athlete' => $eventAthlete->load(['athlete', 'cabor', 'competitionClass']),
         ]);
     }
 
