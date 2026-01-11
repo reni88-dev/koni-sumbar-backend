@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             PermissionSeeder::class,
             UserSeeder::class,
+            CaborSeeder::class,
+            EducationLevelSeeder::class,
+            TesKondisiFisikSeeder::class,
         ]);
     }
 }
