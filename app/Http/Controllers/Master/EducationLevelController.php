@@ -13,6 +13,8 @@ class EducationLevelController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('education_levels.view');
+        
         $query = EducationLevel::query();
 
         // Search
@@ -36,6 +38,8 @@ class EducationLevelController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('education_levels.create');
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:education_levels,code',
@@ -73,6 +77,8 @@ class EducationLevelController extends Controller
      */
     public function update(Request $request, EducationLevel $educationLevel)
     {
+        $this->authorize('education_levels.edit');
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:education_levels,code,' . $educationLevel->id,
@@ -98,6 +104,8 @@ class EducationLevelController extends Controller
      */
     public function destroy(EducationLevel $educationLevel)
     {
+        $this->authorize('education_levels.delete');
+        
         $educationLevel->delete();
 
         return response()->json([

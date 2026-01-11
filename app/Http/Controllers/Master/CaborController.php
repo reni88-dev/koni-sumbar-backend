@@ -15,6 +15,8 @@ class CaborController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('cabors.view');
+        
         $query = Cabor::withCount('athletes');
 
         // Search
@@ -43,6 +45,7 @@ class CaborController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('cabors.create');
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -90,6 +93,8 @@ class CaborController extends Controller
      */
     public function update(Request $request, Cabor $cabor)
     {
+        $this->authorize('cabors.edit');
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -128,6 +133,8 @@ class CaborController extends Controller
      */
     public function destroy(Cabor $cabor)
     {
+        $this->authorize('cabors.delete');
+        
         // Check if cabor has athletes
         if ($cabor->athletes()->count() > 0) {
             return response()->json([

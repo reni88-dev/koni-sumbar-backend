@@ -11,6 +11,7 @@ class EventAthlete extends Model
         'event_id',
         'athlete_id',
         'cabor_id',
+        'competition_class_id',
         'status',
         'notes',
     ];
@@ -19,6 +20,7 @@ class EventAthlete extends Model
         'event_id' => 'integer',
         'athlete_id' => 'integer',
         'cabor_id' => 'integer',
+        'competition_class_id' => 'integer',
     ];
 
     /**
@@ -43,6 +45,14 @@ class EventAthlete extends Model
     public function cabor(): BelongsTo
     {
         return $this->belongsTo(Cabor::class);
+    }
+
+    /**
+     * Get the competition class.
+     */
+    public function competitionClass(): BelongsTo
+    {
+        return $this->belongsTo(CompetitionClass::class);
     }
 
     /**

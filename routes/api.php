@@ -7,6 +7,7 @@ use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\CaborController;
 use App\Http\Controllers\Master\EducationLevelController;
+use App\Http\Controllers\Master\CompetitionClassController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AthleteController;
 use App\Http\Controllers\FormBuilderController;
@@ -48,12 +49,22 @@ Route::middleware('auth:sanctum')->group(function () {
         // Education Levels
         Route::get('/education-levels/all', [EducationLevelController::class, 'all']);
         Route::apiResource('education-levels', EducationLevelController::class);
+        
+        // Competition Classes
+        Route::get('/competition-classes/all', [CompetitionClassController::class, 'all']);
+        Route::post('/competition-classes/batch', [CompetitionClassController::class, 'storeBatch']);
+        Route::apiResource('competition-classes', CompetitionClassController::class);
     });
 
     // Athletes Routes
     Route::get('/athletes/all', [AthleteController::class, 'all']);
     Route::get('/athletes/{athlete}/events', [AthleteController::class, 'events']);
     Route::apiResource('athletes', AthleteController::class);
+    
+    // Master Data Dropdowns (accessible by all authenticated users)
+    Route::get('/cabors/all', [CaborController::class, 'all']);
+    Route::get('/education-levels/all', [EducationLevelController::class, 'all']);
+    Route::get('/competition-classes/all', [CompetitionClassController::class, 'all']);
 
     // Events Routes
     Route::get('/events/all', [EventController::class, 'all']);

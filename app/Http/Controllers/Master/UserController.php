@@ -17,6 +17,8 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('users.view');
+        
         $query = User::with('role');
 
         // Search
@@ -45,6 +47,8 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
+        $this->authorize('users.create');
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -74,6 +78,8 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        $this->authorize('users.edit');
+        
         $data = [
             'name' => $request->name,
             'email' => $request->email,
@@ -99,6 +105,8 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        $this->authorize('users.delete');
+        
         // Prevent deleting yourself
         if (auth()->id() === $user->id) {
             return response()->json([

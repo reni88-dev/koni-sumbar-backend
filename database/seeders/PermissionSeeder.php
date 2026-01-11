@@ -69,6 +69,12 @@ class PermissionSeeder extends Seeder
             ['name' => 'education_levels.edit', 'display_name' => 'Edit Jenjang', 'group' => 'Master Data'],
             ['name' => 'education_levels.delete', 'display_name' => 'Hapus Jenjang', 'group' => 'Master Data'],
             
+            // Master Data - Competition Classes
+            ['name' => 'competition_classes.view', 'display_name' => 'Lihat Kelas Pertandingan', 'group' => 'Master Data'],
+            ['name' => 'competition_classes.create', 'display_name' => 'Tambah Kelas Pertandingan', 'group' => 'Master Data'],
+            ['name' => 'competition_classes.edit', 'display_name' => 'Edit Kelas Pertandingan', 'group' => 'Master Data'],
+            ['name' => 'competition_classes.delete', 'display_name' => 'Hapus Kelas Pertandingan', 'group' => 'Master Data'],
+            
             // Settings
             ['name' => 'settings.view', 'display_name' => 'Lihat Pengaturan', 'group' => 'Pengaturan'],
             ['name' => 'settings.edit', 'display_name' => 'Edit Pengaturan', 'group' => 'Pengaturan'],

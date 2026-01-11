@@ -156,7 +156,7 @@ class EventController extends Controller
      */
     public function athletes(Event $event, Request $request)
     {
-        $query = $event->eventAthletes()->with(['athlete', 'cabor']);
+        $query = $event->eventAthletes()->with(['athlete', 'cabor', 'competitionClass']);
 
         // Filter by cabor
         if ($request->has('cabor_id') && $request->cabor_id) {
@@ -175,34 +175,72 @@ class EventController extends Controller
 
     /**
      * Register an athlete to this event.
+     * Rules:
+     * - 1 athlete can only participate in 1 cabor per event
+     * - 1 athlete can register for max 2 competition classes in that cabor
      */
     public function registerAthlete(Request $request, Event $event)
     {
         $validated = $request->validate([
-            'athlete_id' => [
-                'required',
-                'exists:athletes,id',
-                Rule::unique('event_athletes')->where(function ($query) use ($event) {
-                    return $query->where('event_id', $event->id);
-                }),
-            ],
+            'athlete_id' => 'required|exists:athletes,id',
             'cabor_id' => 'required|exists:cabors,id',
+            'competition_class_id' => 'nullable|exists:competition_classes,id',
             'notes' => 'nullable|string',
         ], [
             'athlete_id.required' => 'Atlet wajib dipilih',
-            'athlete_id.unique' => 'Atlet sudah terdaftar di event ini',
             'cabor_id.required' => 'Cabor wajib dipilih',
         ]);
 
+        $athleteId = $validated['athlete_id'];
+        $caborId = $validated['cabor_id'];
+        $classId = $validated['competition_class_id'] ?? null;
+
+        // Check if athlete already registered in this event with DIFFERENT cabor
+        $existingInOtherCabor = EventAthlete::where('event_id', $event->id)
+            ->where('athlete_id', $athleteId)
+            ->where('cabor_id', '!=', $caborId)
+            ->exists();
+
+        if ($existingInOtherCabor) {
+            return response()->json([
+                'message' => 'Atlet sudah terdaftar di cabor lain. Satu atlet hanya boleh mengikuti 1 cabor per event.',
+            ], 422);
+        }
+
+        // Check if athlete already registered for this specific class
+        $existingInSameClass = EventAthlete::where('event_id', $event->id)
+            ->where('athlete_id', $athleteId)
+            ->where('competition_class_id', $classId)
+            ->exists();
+
+        if ($existingInSameClass) {
+            return response()->json([
+                'message' => 'Atlet sudah terdaftar di kelas pertandingan ini.',
+            ], 422);
+        }
+
+        // Check if athlete already has 2 registrations in this cabor
+        $countInCabor = EventAthlete::where('event_id', $event->id)
+            ->where('athlete_id', $athleteId)
+            ->where('cabor_id', $caborId)
+            ->count();
+
+        if ($countInCabor >= 2) {
+            return response()->json([
+                'message' => 'Atlet sudah terdaftar di 2 kelas pertandingan. Maksimal 2 kelas per cabor.',
+            ], 422);
+        }
+
         $eventAthlete = EventAthlete::create([
             'event_id' => $event->id,
-            'athlete_id' => $validated['athlete_id'],
-            'cabor_id' => $validated['cabor_id'],
+            'athlete_id' => $athleteId,
+            'cabor_id' => $caborId,
+            'competition_class_id' => $classId,
             'status' => 'registered',
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        $eventAthlete->load(['athlete', 'cabor']);
+        $eventAthlete->load(['athlete', 'cabor', 'competitionClass']);
 
         return response()->json([
             'message' => 'Atlet berhasil didaftarkan ke event',

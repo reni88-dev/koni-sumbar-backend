@@ -14,7 +14,7 @@ class AthleteController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Athlete::with(['cabor', 'educationLevel']);
+        $query = Athlete::with(['cabor', 'educationLevel', 'competitionClass']);
 
         // Search
         if ($request->has('search') && $request->search) {
@@ -76,7 +76,7 @@ class AthleteController extends Controller
             'name' => 'required|string|max:255',
             'nik' => ['required', 'string', 'digits:16', new UniqueNikHash()],
             'no_kk' => 'required|string|digits:16',
-            'competition_class' => 'required|string|max:100',
+            'competition_class_id' => 'required|exists:competition_classes,id',
             'birth_place' => 'required|string|max:100',
             'birth_date' => 'required|date',
             'gender' => 'required|in:male,female',
@@ -106,7 +106,8 @@ class AthleteController extends Controller
             'nik.digits' => 'NIK harus 16 digit',
             'no_kk.required' => 'No. KK wajib diisi',
             'no_kk.digits' => 'No. KK harus 16 digit',
-            'competition_class.required' => 'Kelas pertandingan wajib diisi',
+            'competition_class_id.required' => 'Kelas pertandingan wajib dipilih',
+            'competition_class_id.exists' => 'Kelas pertandingan tidak valid',
             'birth_place.required' => 'Tempat lahir wajib diisi',
             'birth_date.required' => 'Tanggal lahir wajib diisi',
             'gender.required' => 'Jenis kelamin wajib dipilih',
@@ -132,7 +133,7 @@ class AthleteController extends Controller
         $validated['top_achievements'] = $data['top_achievements'] ?? [];
 
         $athlete = Athlete::create($validated);
-        $athlete->load(['cabor', 'educationLevel']);
+        $athlete->load(['cabor', 'educationLevel', 'competitionClass']);
 
         return response()->json([
             'message' => 'Atlet berhasil ditambahkan',
@@ -145,7 +146,7 @@ class AthleteController extends Controller
      */
     public function show(Athlete $athlete)
     {
-        $athlete->load(['cabor', 'educationLevel', 'events']);
+        $athlete->load(['cabor', 'educationLevel', 'competitionClass', 'events']);
         
         return response()->json($athlete);
     }
@@ -180,7 +181,7 @@ class AthleteController extends Controller
             'name' => 'required|string|max:255',
             'nik' => ['required', 'string', 'digits:16', new UniqueNikHash($athlete->id)],
             'no_kk' => 'required|string|digits:16',
-            'competition_class' => 'required|string|max:100',
+            'competition_class_id' => 'required|exists:competition_classes,id',
             'birth_place' => 'required|string|max:100',
             'birth_date' => 'required|date',
             'gender' => 'required|in:male,female',
@@ -210,7 +211,8 @@ class AthleteController extends Controller
             'nik.digits' => 'NIK harus 16 digit',
             'no_kk.required' => 'No. KK wajib diisi',
             'no_kk.digits' => 'No. KK harus 16 digit',
-            'competition_class.required' => 'Kelas pertandingan wajib diisi',
+            'competition_class_id.required' => 'Kelas pertandingan wajib dipilih',
+            'competition_class_id.exists' => 'Kelas pertandingan tidak valid',
             'birth_place.required' => 'Tempat lahir wajib diisi',
             'birth_date.required' => 'Tanggal lahir wajib diisi',
             'gender.required' => 'Jenis kelamin wajib dipilih',
@@ -239,7 +241,7 @@ class AthleteController extends Controller
         $validated['top_achievements'] = $data['top_achievements'] ?? [];
 
         $athlete->update($validated);
-        $athlete->load(['cabor', 'educationLevel']);
+        $athlete->load(['cabor', 'educationLevel', 'competitionClass']);
 
         return response()->json([
             'message' => 'Atlet berhasil diupdate',

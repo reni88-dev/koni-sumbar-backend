@@ -23,6 +23,7 @@ class Athlete extends Model
 
     protected $fillable = [
         'cabor_id',
+        'competition_class_id',
         'education_level_id',
         'name',
         'nik',
@@ -61,7 +62,7 @@ class Athlete extends Model
     protected $casts = [
         'nik' => Encrypted::class,
         'no_kk' => Encrypted::class,
-        'birth_date' => 'date',
+        'birth_date' => 'date:Y-m-d',
         'career_start_year' => 'integer',
         'height' => 'integer',
         'weight' => 'decimal:2',
@@ -78,6 +79,14 @@ class Athlete extends Model
     public function cabor(): BelongsTo
     {
         return $this->belongsTo(Cabor::class);
+    }
+
+    /**
+     * Get the competition class.
+     */
+    public function competitionClass(): BelongsTo
+    {
+        return $this->belongsTo(CompetitionClass::class);
     }
 
     /**

@@ -15,6 +15,8 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('roles.view');
+        
         $query = Role::with('permissions');
 
         // Search
@@ -36,6 +38,8 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('roles.create');
+        
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:50|unique:roles,name',
             'display_name' => 'required|string|max:100',
@@ -87,6 +91,8 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
+        $this->authorize('roles.edit');
+        
         // Prevent editing super_admin role name
         if ($role->isSuperAdmin() && $request->name !== 'super_admin') {
             return response()->json([
@@ -132,6 +138,8 @@ class RoleController extends Controller
      */
     public function updatePermissions(Request $request, Role $role)
     {
+        $this->authorize('roles.permissions');
+        
         // Super admin doesn't need permissions assigned
         if ($role->isSuperAdmin()) {
             return response()->json([
@@ -165,6 +173,8 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
+        $this->authorize('roles.delete');
+        
         // Prevent deleting super_admin role
         if ($role->isSuperAdmin()) {
             return response()->json([
