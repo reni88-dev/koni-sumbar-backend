@@ -24,7 +24,12 @@ class FormSubmissionController extends Controller
     public function index(Request $request, FormTemplate $formTemplate)
     {
         $query = $formTemplate->submissions()
-            ->with(['user', 'values.field']);
+            ->with(['user', 'values.field', 'event']);
+
+        // Filter by event
+        if ($request->has('event_id') && $request->event_id) {
+            $query->where('event_id', $request->event_id);
+        }
 
         // Search by submission code
         if ($request->has('search') && $request->search) {
@@ -65,6 +70,7 @@ class FormSubmissionController extends Controller
     {
         $validated = $request->validate([
             'reference_id' => 'nullable|integer',
+            'event_id' => 'nullable|integer|exists:events,id',
             'values' => 'required|array',
             'values.*.field_id' => 'required|integer|exists:form_fields,id',
             'values.*.value' => 'nullable',
@@ -92,6 +98,7 @@ class FormSubmissionController extends Controller
             // Create submission
             $submission = FormSubmission::create([
                 'form_template_id' => $formTemplate->id,
+                'event_id' => $validated['event_id'] ?? null,
                 'reference_id' => $validated['reference_id'] ?? null,
                 'user_id' => auth()->id(),
             ]);

@@ -14,6 +14,7 @@ class FormSubmission extends Model
 
     protected $fillable = [
         'form_template_id',
+        'event_id',
         'reference_id',
         'user_id',
         'submission_code',
@@ -44,6 +45,14 @@ class FormSubmission extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(FormTemplate::class, 'form_template_id');
+    }
+
+    /**
+     * Get the event this submission belongs to (optional).
+     */
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
     }
 
     /**
