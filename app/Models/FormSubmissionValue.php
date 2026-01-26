@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FormSubmissionValue extends Model
 {
+    use LogsActivity;
     protected $fillable = [
         'form_submission_id',
         'form_field_id',

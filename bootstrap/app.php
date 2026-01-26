@@ -57,6 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'throttle.register' => 'throttle:register',
             'throttle.upload' => 'throttle:upload',
             'permission' => \App\Http\Middleware\CheckPermission::class,
+            'superadmin' => \App\Http\Middleware\SuperAdminOnly::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -79,7 +80,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (\Throwable $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
-                // Log the actual error for debugging
+                // Log the actual error for debugging (file log)
                 \Illuminate\Support\Facades\Log::channel('security')->error('API Error', [
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
@@ -88,6 +89,20 @@ return Application::configure(basePath: dirname(__DIR__))
                     'url' => $request->fullUrl(),
                     'user_id' => $request->user()?->id,
                 ]);
+
+                // Log to database for activity log dashboard (skip validation errors in dev)
+                try {
+                    // Don't log 404s and method not allowed
+                    if (!($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) &&
+                        !($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException)) {
+                        \App\Services\ErrorLogService::log($e);
+                    }
+                } catch (\Throwable $logException) {
+                    // Silently fail if error logging fails
+                    \Illuminate\Support\Facades\Log::error('ErrorLogService failed', [
+                        'message' => $logException->getMessage(),
+                    ]);
+                }
 
                 // Return sanitized error in production
                 if (app()->environment('production')) {

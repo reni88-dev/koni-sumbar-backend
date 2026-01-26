@@ -12,6 +12,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\AthleteController;
 use App\Http\Controllers\FormBuilderController;
 use App\Http\Controllers\FormSubmissionController;
+use App\Http\Controllers\ActivityLogController;
 
 // Public routes with specific rate limiting
 Route::middleware('throttle:login')->post('/login', [AuthController::class, 'login']);
@@ -102,5 +103,24 @@ Route::middleware('auth:sanctum')->group(function () {
         
         // Grading preview
         Route::post('/grading/preview', [FormSubmissionController::class, 'previewGrading']);
+    });
+
+    // Activity Logs Routes (Super Admin only)
+    Route::middleware('superadmin')->prefix('activity-logs')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index']);
+        Route::get('/stats', [ActivityLogController::class, 'stats']);
+        Route::get('/users', [ActivityLogController::class, 'users']);
+        Route::get('/export', [ActivityLogController::class, 'export']);
+        Route::get('/{id}', [ActivityLogController::class, 'show']);
+        Route::delete('/cleanup', [ActivityLogController::class, 'cleanup']);
+    });
+
+    // Error Logs Routes (Super Admin only)
+    Route::middleware('superadmin')->prefix('error-logs')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'errorIndex']);
+        Route::get('/stats', [ActivityLogController::class, 'errorStats']);
+        Route::get('/{id}', [ActivityLogController::class, 'errorShow']);
+        Route::post('/{id}/resolve', [ActivityLogController::class, 'resolveError']);
+        Route::delete('/cleanup', [ActivityLogController::class, 'errorCleanup']);
     });
 });

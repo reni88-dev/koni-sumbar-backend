@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\Encrypted;
 use App\Traits\HasBlindIndex;
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Athlete extends Model
 {
-    use SoftDeletes, HasBlindIndex;
+    use SoftDeletes, HasBlindIndex, LogsActivity;
 
     /**
      * Fields that need blind index hashing.
