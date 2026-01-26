@@ -131,6 +131,7 @@ class FormBuilderController extends Controller
                         'data_source_label_field' => $fieldData['data_source_label_field'] ?? null,
                         'data_source_filters' => $fieldData['data_source_filters'] ?? null,
                         'reference_field' => $fieldData['reference_field'] ?? null,
+                        'linked_to_reference_field' => $fieldData['linked_to_reference_field'] ?? null,
                         'is_readonly' => $fieldData['is_readonly'] ?? false,
                         'calculation_formula' => $fieldData['calculation_formula'] ?? null,
                         'calculation_dependencies' => $fieldData['calculation_dependencies'] ?? null,
@@ -250,6 +251,7 @@ class FormBuilderController extends Controller
                         'data_source_label_field' => $fieldData['data_source_label_field'] ?? null,
                         'data_source_filters' => $fieldData['data_source_filters'] ?? null,
                         'reference_field' => $fieldData['reference_field'] ?? null,
+                        'linked_to_reference_field' => $fieldData['linked_to_reference_field'] ?? null,
                         'is_readonly' => $fieldData['is_readonly'] ?? false,
                         'calculation_formula' => $fieldData['calculation_formula'] ?? null,
                         'calculation_dependencies' => $fieldData['calculation_dependencies'] ?? null,
@@ -373,8 +375,9 @@ class FormBuilderController extends Controller
 
     /**
      * Get all records from a model for selection in model_reference fields.
+     * Supports event_id filter for athlete model to only show event-registered athletes.
      */
-    public function getModelRecords(string $model)
+    public function getModelRecords(Request $request, string $model)
     {
         $modelClass = FormTemplate::$allowedModels[$model] ?? null;
 
@@ -382,8 +385,18 @@ class FormBuilderController extends Controller
             return response()->json(['error' => 'Model not found'], 404);
         }
 
+        $query = $modelClass::query();
+
+        // Filter athletes by event if event_id is provided
+        if ($model === 'athlete' && $request->has('event_id')) {
+            $eventId = $request->get('event_id');
+            $query->whereHas('events', function ($q) use ($eventId) {
+                $q->where('events.id', $eventId);
+            });
+        }
+
         // Fetch records with commonly used display fields
-        $records = $modelClass::select('*')
+        $records = $query->select('*')
             ->orderBy('name', 'asc')
             ->limit(500) // Limit to prevent too many records
             ->get();

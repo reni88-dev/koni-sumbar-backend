@@ -27,6 +27,7 @@ class FormField extends Model
         'data_source_label_field',
         'data_source_filters',
         'reference_field',
+        'linked_to_reference_field',
         'is_readonly',
         'calculation_formula',
         'calculation_dependencies',
